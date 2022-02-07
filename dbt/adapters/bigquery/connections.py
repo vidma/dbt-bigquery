@@ -10,6 +10,7 @@ from typing import Optional, Any, Dict, Tuple
 import google.auth
 import google.auth.exceptions
 import google.cloud.bigquery
+import kensu.google.cloud.bigquery
 import google.cloud.exceptions
 from google.api_core import retry, client_info
 from google.auth import impersonated_credentials
@@ -300,7 +301,7 @@ class BigQueryConnectionManager(BaseConnectionManager):
         location = getattr(profile_credentials, 'location', None)
 
         info = client_info.ClientInfo(user_agent=f'dbt-{dbt_version}')
-        return google.cloud.bigquery.Client(
+        return kensu.google.cloud.bigquery.Client(
             execution_project,
             creds,
             location=location,
@@ -509,7 +510,8 @@ class BigQueryConnectionManager(BaseConnectionManager):
             destination_ref.path, write_disposition)
 
         def copy_and_results():
-            job_config = google.cloud.bigquery.CopyJobConfig(
+            # FIXME: unsupported?
+            job_config = kensu.google.cloud.bigquery.CopyJobConfig(
                 write_disposition=write_disposition)
             copy_job = client.copy_table(
                 source_ref_array, destination_ref, job_config=job_config)
@@ -524,12 +526,14 @@ class BigQueryConnectionManager(BaseConnectionManager):
 
     @staticmethod
     def dataset_ref(database, schema):
-        return google.cloud.bigquery.DatasetReference(project=database, dataset_id=schema)
+        # FIXME?
+        return kensu.google.cloud.bigquery.DatasetReference(project=database, dataset_id=schema)
 
     @staticmethod
     def table_ref(database, schema, table_name):
-        dataset_ref = google.cloud.bigquery.DatasetReference(database, schema)
-        return google.cloud.bigquery.TableReference(dataset_ref, table_name)
+        # FIXME?
+        dataset_ref = kensu.google.cloud.bigquery.DatasetReference(database, schema)
+        return kensu.google.cloud.bigquery.TableReference(dataset_ref, table_name)
 
     def get_bq_table(self, database, schema, identifier):
         """Get a bigquery table for a schema/model."""
@@ -564,7 +568,8 @@ class BigQueryConnectionManager(BaseConnectionManager):
     ):
         """Query the client and wait for results."""
         # Cannot reuse job_config if destination is set and ddl is used
-        job_config = google.cloud.bigquery.QueryJobConfig(**job_params)
+        # FIXME: anything missing here?
+        job_config = kensu.google.cloud.bigquery.QueryJobConfig(**job_params)
         query_job = client.query(
             query=sql,
             job_config=job_config,
